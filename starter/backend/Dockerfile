@@ -4,6 +4,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 WORKDIR /app
 
 RUN adduser --uid 1000 --disabled-password --gecos "" app
+RUN mkdir -p /var/www/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
