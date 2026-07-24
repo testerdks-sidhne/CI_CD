@@ -12,10 +12,3 @@ Because AWS Learner Lab resources automatically clean up upon session expiration
 
 1. **DOCX Document Submission**: Complete end-to-end screenshots showing successful pipeline runs, live Kubernetes deployment, ECR container image uploads, and browser UI movie rendering.
 2. **GitHub Actions Workflows**: Fully automated, production-grade CI/CD pipelines configured under `.github/workflows/`.
-3. **Infrastructure Code**: Complete Terraform (`setup/terraform`) and Kubernetes manifest (`starter/*/k8s`) configurations.
-
----
-
-### Live Application Endpoints (Active During Lab Session)
-- **Frontend App**: `http://ad0fdbd5df8aa4304859a2a912bb0e43-1384074213.us-east-1.elb.amazonaws.com`
-- **Backend API**: `http://ac3023e4fa28c4b77b51fde204dad779-1625317990.us-east-1.elb.amazonaws.com/movies`
