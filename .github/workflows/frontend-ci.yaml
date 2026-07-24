@@ -1,35 +1,21 @@
-name: Frontend Continuous Integration
+name: Frontend CI
 
-# ──────────────────────────────────────────────────────────────
-# Triggers
-# ──────────────────────────────────────────────────────────────
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'starter/frontend/**'   # Only run when frontend code changes
-  workflow_dispatch:            # Allow manual execution from the Actions tab
+      - 'starter/frontend/**'
+  workflow_dispatch:
 
-# ──────────────────────────────────────────────────────────────
-# Shared defaults – every job runs commands inside the
-# starter/frontend directory so we don't repeat it per-step.
-# ──────────────────────────────────────────────────────────────
 defaults:
   run:
     working-directory: starter/frontend
 
 jobs:
-
-  # ────────────────────────────────────────────────────────────
-  # Job 1: lint
-  # Runs ESLint to enforce code-quality rules.
-  # Executes in PARALLEL with the test job.
-  # ────────────────────────────────────────────────────────────
   lint:
-    name: Lint
+    name: Lint Code
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,9 +23,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: starter/frontend/.nvmrc   # Pins to 18.14 as declared in .nvmrc
+          node-version-file: starter/frontend/.nvmrc
 
-      - name: Restore cached npm dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: starter/frontend/node_modules
@@ -50,18 +36,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Run lint
         run: npm run lint
 
-  # ────────────────────────────────────────────────────────────
-  # Job 2: test
-  # Runs the React test suite in non-interactive CI mode.
-  # Executes in PARALLEL with the lint job.
-  # ────────────────────────────────────────────────────────────
   test:
-    name: Test
+    name: Run Unit Tests
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,7 +51,7 @@ jobs:
         with:
           node-version-file: starter/frontend/.nvmrc
 
-      - name: Restore cached npm dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: starter/frontend/node_modules
@@ -83,20 +63,14 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: CI=true npm test   # CI=true prevents the watcher from hanging and treats warnings as errors
+        run: CI=true npm test
 
-  # ────────────────────────────────────────────────────────────
-  # Job 3: build
-  # Builds the Docker image ONLY after lint AND test succeed.
-  # The image is NOT pushed anywhere (no registry, no AWS, no CD).
-  # ────────────────────────────────────────────────────────────
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs:
       - lint
       - test
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -106,7 +80,7 @@ jobs:
         with:
           node-version-file: starter/frontend/.nvmrc
 
-      - name: Restore cached npm dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: starter/frontend/node_modules
@@ -125,8 +99,4 @@ jobs:
             --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL \
             -t frontend:test \
             .
-        # The Dockerfile already declares:
-        #   ARG REACT_APP_MOVIE_API_URL
-        #   ENV REACT_APP_MOVIE_API_URL=${REACT_APP_MOVIE_API_URL}
-        # so the build-arg is correctly injected and baked in.
-        # The image is only built locally on the runner – it is NOT pushed.
+
