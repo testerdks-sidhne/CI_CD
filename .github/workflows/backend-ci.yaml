@@ -1,0 +1,141 @@
+name: Backend Continuous Integration
+
+# ──────────────────────────────────────────────────────────────
+# Triggers
+# ──────────────────────────────────────────────────────────────
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'starter/backend/**'    # Only run when backend code changes
+  workflow_dispatch:            # Allow manual execution from the Actions tab
+
+# ──────────────────────────────────────────────────────────────
+# Shared defaults – every job runs commands inside the
+# starter/backend directory so we don't repeat it per-step.
+# ──────────────────────────────────────────────────────────────
+defaults:
+  run:
+    working-directory: starter/backend
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────
+  # Job 1: lint
+  # Runs flake8 via pipenv to enforce Python code-quality rules.
+  # Executes in PARALLEL with the test job.
+  # ────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'    # Matches [requires] python_version in Pipfile
+
+      - name: Cache pip and pipenv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run lint
+        run: pipenv run lint
+
+  # ────────────────────────────────────────────────────────────
+  # Job 2: test
+  # Runs pytest via pipenv in verbose mode.
+  # Executes in PARALLEL with the lint job.
+  # ────────────────────────────────────────────────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip and pipenv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run tests
+        run: pipenv run test
+
+  # ────────────────────────────────────────────────────────────
+  # Job 3: build
+  # Builds the Docker image ONLY after lint AND test succeed.
+  # The image is NOT pushed anywhere (no registry, no AWS, no CD).
+  # ────────────────────────────────────────────────────────────
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip and pipenv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t backend:test \
+            .
+        # The image is only built locally on the runner – it is NOT pushed.
+        # No AWS, ECR, Kubernetes, or any deployment steps are included.
