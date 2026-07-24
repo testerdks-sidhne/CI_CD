@@ -120,9 +120,9 @@ jobs:
         run: pip install pipenv
 
       - name: Generate requirements.txt from Pipfile.lock
-        # Generates a pip-compatible requirements file from the lockfile.
-        # The Dockerfile uses this to install dependencies with pip (no pipenv needed in Docker).
-        run: pipenv requirements > requirements.txt
+        # Generates a pip-compatible requirements file without hash pinning.
+        # This allows pip to use pre-built wheels (avoiding C compilation issues).
+        run: pipenv requirements --without-hashes > requirements.txt
 
       - name: Build Docker image
         run: |
