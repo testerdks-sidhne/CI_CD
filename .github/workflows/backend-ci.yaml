@@ -111,19 +111,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install pipenv
-        run: pip install pipenv
-
-      - name: Generate requirements.txt from Pipfile.lock
-        # Generates a pip-compatible requirements file without hash pinning.
-        # This allows pip to use pre-built wheels (avoiding C compilation issues).
-        run: pipenv requirements --without-hashes > requirements.txt
-
       - name: Build Docker image
         run: |
           docker build \
