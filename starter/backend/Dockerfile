@@ -8,8 +8,7 @@ RUN adduser --uid 1000 --disabled-password --gecos "" app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
-    libpcre3 \
-    libpcre3-dev \
+    libpcre2-dev \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir setuptools wheel pipenv
 
