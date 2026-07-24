@@ -1,8 +1,5 @@
-name: Frontend Continuous Deployment
+name: Frontend CD
 
-# ──────────────────────────────────────────────────────────────
-# Triggers
-# ──────────────────────────────────────────────────────────────
 on:
   push:
     branches:
@@ -11,9 +8,6 @@ on:
       - 'starter/frontend/**'
   workflow_dispatch:
 
-# ──────────────────────────────────────────────────────────────
-# Working Directory Default
-# ──────────────────────────────────────────────────────────────
 defaults:
   run:
     working-directory: starter/frontend
@@ -68,3 +62,4 @@ jobs:
       - name: Verify deployment rollout
         run: |
           kubectl rollout status deployment/frontend --timeout=180s
+

@@ -1,8 +1,5 @@
-name: Backend Continuous Deployment
+name: Backend CD
 
-# ──────────────────────────────────────────────────────────────
-# Triggers
-# ──────────────────────────────────────────────────────────────
 on:
   push:
     branches:
@@ -11,9 +8,6 @@ on:
       - 'starter/backend/**'
   workflow_dispatch:
 
-# ──────────────────────────────────────────────────────────────
-# Working Directory Default
-# ──────────────────────────────────────────────────────────────
 defaults:
   run:
     working-directory: starter/backend
@@ -59,3 +53,4 @@ jobs:
       - name: Verify deployment rollout
         run: |
           kubectl rollout status deployment/backend --timeout=180s
+
