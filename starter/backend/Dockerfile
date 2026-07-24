@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/python:3.10-alpine
+FROM python:3.10-alpine
 ENV FLASK_RUN_HOST=0.0.0.0
 
 WORKDIR /
@@ -12,12 +12,12 @@ RUN apk update && \
   linux-headers \
   openssl \
   libffi-dev \
-  && pip install pipenv
+  && pip install --no-cache-dir setuptools wheel pipenv
 
 RUN mkdir -p /var/www/app && mkdir /app
 
 COPY Pipfile* /app
-RUN cd /app && pipenv install --system --ignore-pipfile
+RUN cd /app && pipenv install --system --deploy --ignore-pipfile
 
 COPY . /app
 
