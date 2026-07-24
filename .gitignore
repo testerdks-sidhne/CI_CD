@@ -3,5 +3,7 @@ node_modules
 .terraform
 .terraform.tfstate.lock.info
 *.tfstate.backup
+*.tfstate
+__pycache__/
+*.pyc
 credentials
-.pytest_cache
